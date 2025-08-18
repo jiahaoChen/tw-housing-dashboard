@@ -1,0 +1,70 @@
+{
+  "version": "1.0.0",
+  "updated_at": null,
+  "series": {
+    "transactions_total": {
+      "freq": "M",
+      "unit": "棟",
+      "desc": "全國建物買賣移轉棟數（登記）"
+    },
+    "transactions_cities": {
+      "freq": "M",
+      "unit": "棟",
+      "desc": "六都/縣市建物買賣移轉棟數（登記）"
+    },
+    "five_bank_new_mortgage_rate": {
+      "freq": "M",
+      "unit": "%",
+      "desc": "五大行庫新承作房貸年利率（CBC）"
+    },
+    "jcic_housing_loan_counts": {
+      "freq": "M",
+      "unit": "件/戶",
+      "desc": "個人房屋貸款件數（聯徵中心）"
+    },
+    "construction_loans_balance": {
+      "freq": "M",
+      "unit": "百萬元",
+      "desc": "全體金融機構建築貸款餘額（CBC）"
+    },
+    "construction_cost_index": {
+      "freq": "M",
+      "unit": "指數",
+      "desc": "營造工程物價指數（主計總處）"
+    },
+    "rent_cpi_yoy": {
+      "freq": "M",
+      "unit": "%",
+      "desc": "CPI房租年增率（主計總處）"
+    },
+    "construction_sector_index": {
+      "freq": "D",
+      "unit": "指數",
+      "desc": "建材營造類股價指數（TWSE，轉為月均）"
+    },
+    "building_permits": {
+      "freq": "M",
+      "unit": "件",
+      "desc": "建造執照核發數（代理「開工」先行指標）"
+    },
+    "usage_licenses": {
+      "freq": "M",
+      "unit": "件",
+      "desc": "使用執照核發數（代理「完工/交屋」先行指標）"
+    },
+    "house_price_index_moi": {
+      "freq": "Q",
+      "unit": "指數",
+      "desc": "不動產住宅價格指數（內政部，全國/六都）"
+    },
+    "house_price_index_sinyi": {
+      "freq": "Q",
+      "unit": "指數",
+      "desc": "信義房價指數（民間，全國/六都）"
+    }
+  },
+  "notes": [
+    "部分指標為季資料，時間序列會以季底月份對齊（例如Q1對齊3月），並於前兩月以相同值填補便於視覺呈現。",
+    "資料來源出處皆於頁面底部列出，依各單位更新頻率每週自動取最新。"
+  ]
+}

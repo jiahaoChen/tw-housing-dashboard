@@ -1,0 +1,27 @@
+{
+  "updated_at": "2025-08-18",
+  "transactions_total": [],
+  "transactions_cities": {
+    "ALL": []
+  },
+  "five_bank_new_mortgage_rate": [],
+  "jcic_housing_loan_counts": [],
+  "construction_loans_balance": [],
+  "construction_cost_index": [],
+  "rent_cpi_yoy": [],
+  "construction_sector_index": [],
+  "building_permits": [],
+  "usage_licenses": [],
+  "house_price_index_moi": [
+    {
+      "area": "全國",
+      "series": []
+    }
+  ],
+  "house_price_index_sinyi": [
+    {
+      "area": "全國",
+      "series": []
+    }
+  ]
+}

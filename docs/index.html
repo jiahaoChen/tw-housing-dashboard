@@ -1,0 +1,323 @@
+
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>台灣房市先行指標儀表板</title>
+    <meta name="description" content="台灣房市觀測：交易量、房貸、建築融資、開工/完工、營建成本、房租CPI、房價指數等。自動每週更新。" />
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" />
+    <style>
+      :root {
+        --bg: #0b1020;
+        --card: #131a2b;
+        --text: #e9eef7;
+        --muted: #aeb8cc;
+        --accent: #7aa2ff;
+        --ok: #2ecc71;
+        --warn: #f1c40f;
+        --bad: #e74c3c;
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Noto Sans TC, "PingFang TC", "Heiti TC", Arial, sans-serif; background: var(--bg); color: var(--text); }
+      header { padding: 20px; border-bottom: 1px solid #1d2540; position: sticky; top: 0; background: rgba(11,16,32,.9); backdrop-filter: blur(4px); z-index: 10; }
+      h1 { margin: 0 0 6px; font-weight: 700; font-size: 22px; letter-spacing: .5px; }
+      .sub { color: var(--muted); font-size: 13px; }
+      .layout { display: grid; grid-template-columns: 260px 1fr; gap: 16px; padding: 16px; }
+      aside, main { background: transparent; }
+      .card { background: var(--card); border: 1px solid #1d2540; border-radius: 16px; padding: 14px; }
+      .card h3 { margin: 0 0 12px; font-size: 14px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .7px; }
+      .kpi { display:grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
+      .kpi .item { background:#0f1730; border:1px solid #1d2540; border-radius:12px; padding:12px; }
+      .kpi .label { font-size: 12px; color: var(--muted); }
+      .kpi .value { font-size: 20px; font-weight: 700; margin-top:6px; }
+      .kpi .delta { font-size: 12px; margin-top:4px; }
+      .controls { display: grid; gap: 12px; }
+      select, button { width: 100%; padding: 10px 12px; border-radius: 10px; background: #0f1730; color: var(--text); border: 1px solid #1d2540; }
+      button { cursor: pointer; }
+      .chart { height: 320px; }
+      .grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+      @media(min-width: 1200px) { .grid { grid-template-columns: 1fr 1fr; } }
+      footer { color: var(--muted); padding: 16px; font-size: 12px; }
+      a { color: var(--accent); text-decoration: none; }
+      .badge { display:inline-block; padding:4px 8px; border-radius:8px; border:1px solid #1d2540; background:#0f1730; color:var(--muted); font-size:12px; }
+      .legend { font-size: 12px; color: var(--muted); }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>台灣房市先行指標儀表板 <span id="badge" class="badge">載入中…</span></h1>
+      <div class="sub">涵蓋：交易量、房貸利率、建築融資、開工/完工、營建成本、房租CPI、營建股指數、房價指數（季）等；時間序列至少10年，按週自動更新。</div>
+    </header>
+
+    <div class="layout">
+      <aside>
+        <div class="card controls">
+          <h3>篩選/檢視</h3>
+          <label>
+            期間
+            <select id="range">
+              <option value="10y" selected>近10年</option>
+              <option value="5y">近5年</option>
+              <option value="3y">近3年</option>
+              <option value="all">全部</option>
+            </select>
+          </label>
+          <label>
+            縣市（交易量）
+            <select id="city">
+              <option value="ALL" selected>全國</option>
+            </select>
+          </label>
+          <button id="reset">重設圖表</button>
+        </div>
+
+        <div class="card">
+          <h3>指標說明</h3>
+          <ul style="margin:0 0 0 16px; padding:0; line-height:1.7;">
+            <li><b>交易量</b>：建物買賣「登記」棟數（每月）。</li>
+            <li><b>房貸利率</b>：五大行庫新承作房貸年利率（每月）。</li>
+            <li><b>建築貸款</b>：金融機構建築貸款餘額（每月）。</li>
+            <li><b>營造工程物價</b>：成本壓力（每月）。</li>
+            <li><b>房租CPI</b>：租金年增率，衡量居住成本（每月）。</li>
+            <li><b>開工/完工</b>：建造/使用執照核發數，供給先行（每月）。</li>
+            <li><b>營建股指數</b>：市場對營建景氣的即時定價（轉月均）。</li>
+            <li><b>房價指數</b>：內政部（官方）與信義（民間）季資料。</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>快速判讀</h3>
+          <div id="insights" class="legend">載入中…</div>
+        </div>
+      </aside>
+
+      <main>
+        <div class="card">
+          <h3>全國重點KPI</h3>
+          <div class="kpi">
+            <div class="item">
+              <div class="label">交易量（年增）</div>
+              <div id="kpi_txn" class="value">--</div>
+              <div id="kpi_txn_delta" class="delta"></div>
+            </div>
+            <div class="item">
+              <div class="label">房貸利率（%）</div>
+              <div id="kpi_rate" class="value">--</div>
+              <div id="kpi_rate_delta" class="delta"></div>
+            </div>
+            <div class="item">
+              <div class="label">建築貸款餘額（年增）</div>
+              <div id="kpi_conloan" class="value">--</div>
+              <div id="kpi_conloan_delta" class="delta"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid">
+          <div class="card"><h3>交易量（全國/縣市）</h3><div id="chart_txn" class="chart"></div></div>
+          <div class="card"><h3>房貸利率 vs 建築貸款餘額</h3><div id="chart_rate_loan" class="chart"></div></div>
+          <div class="card"><h3>開工（建造執照）與完工（使用執照）</h3><div id="chart_permits" class="chart"></div></div>
+          <div class="card"><h3>營造工程物價 & 房租CPI</h3><div id="chart_cost_rent" class="chart"></div></div>
+          <div class="card"><h3>營建股指數（月均）</h3><div id="chart_sector" class="chart"></div></div>
+          <div class="card"><h3>住宅價格指數（季）</h3><div id="chart_hpi" class="chart"></div></div>
+        </div>
+
+        <footer class="card">
+          <div><b>資料來源</b>：內政部不動產資訊平台、國土管理署/內政統計月報、中央銀行、聯徵中心（銀行公會）、主計總處、臺灣證券交易所、信義房屋等。</div>
+          <div style="margin-top:6px;">所有數據每週自動更新；實際落後期取決於各單位發布時點。</div>
+          <div style="margin-top:6px;">開源專案：<a href="https://github.com/your/repo">GitHub</a>（啟用 GitHub Pages 後，本頁即為固定網址）。</div>
+        </footer>
+      </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+    <script>
+      const fmt = new Intl.NumberFormat('zh-TW');
+      const pct = (n)=> (n==null?'-':(Math.round(n*100)/100).toFixed(2)+'%');
+      const badge = document.getElementById('badge');
+      const citySel = document.getElementById('city');
+      const rangeSel = document.getElementById('range');
+
+      async function load() {
+        const res = await fetch('data.json?_=' + Date.now());
+        const data = await res.json();
+        badge.textContent = '更新：' + (data.updated_at||'--');
+        initCities(data);
+        renderAll(data);
+      }
+
+      function initCities(data){
+        const cities = Object.keys((data.transactions_cities && data.transactions_cities.ALL) ? data.transactions_cities : { 'ALL': [] });
+        // If schema uses {city:[{date,value}]} format:
+        const keys = Object.keys(data.transactions_cities||{});
+        const list = keys.length ? keys : ['ALL'];
+        for(const c of list){
+          const opt = document.createElement('option');
+          opt.value = c;
+          opt.textContent = c==='ALL'?'全國':c;
+          citySel.appendChild(opt);
+        }
+      }
+
+      function filterRange(arr, months){
+        if(!arr) return [];
+        if(months==='all') return arr;
+        const cutoff = new Date();
+        cutoff.setMonth(cutoff.getMonth() - (months==='10y'?120: months==='5y'?60: months==='3y'?36:120));
+        return arr.filter(d => new Date(d.date+'-01') >= cutoff);
+      }
+
+      function yoy(series){
+        const map = {};
+        series.forEach(d=> map[d.date]=d.value);
+        return series.map(d=>{
+          const [y,m] = d.date.split('-').map(Number);
+          const prev = map[(y-1)+'-'+String(m).padStart(2,'0')];
+          return {date:d.date, value: prev!=null ? (d.value/prev -1)*100 : null};
+        });
+      }
+
+      function ma(series, n){
+        const out=[];
+        for(let i=0;i<series.length;i++){
+          const slice = series.slice(Math.max(0,i-n+1), i+1).map(x=>x.value).filter(x=>x!=null);
+          const val = slice.length ? slice.reduce((a,b)=>a+b,0)/slice.length : null;
+          out.push({date:series[i].date, value:val});
+        }
+        return out;
+      }
+
+      function last(series){ return series && series.length ? series[series.length-1].value : null; }
+
+      function setKpi(elId, val, delta){
+        document.getElementById(elId).textContent = (val==null?'--': (typeof val==='number'? (Math.round(val*100)/100): val));
+        const elDelta = document.getElementById(elId+'_delta');
+        if(elDelta){
+          const d = (delta==null?null: Math.round(delta*100)/100);
+          elDelta.textContent = (d==null?'': (d>0?'▲ ':'▼ ')+Math.abs(d)+'%');
+          elDelta.style.color = d==null? 'var(--muted)' : (d>0?'var(--ok)':'var(--bad)');
+        }
+      }
+
+      function renderAll(data){
+        // Prepare series
+        const txnAll = data.transactions_total||[];
+        const txnCities = data.transactions_cities||{};
+        const rate = data.five_bank_new_mortgage_rate||[];
+        const conLoan = data.construction_loans_balance||[];
+        const permits = data.building_permits||[];
+        const usage = data.usage_licenses||[];
+        const cost = data.construction_cost_index||[];
+        const rent = data.rent_cpi_yoy||[];
+        const sector = data.construction_sector_index||[];
+        const hpi_moi = data.house_price_index_moi||[];
+        const hpi_sinyi = data.house_price_index_sinyi||[];
+
+        // KPI
+        const txnYoY = yoy(txnAll);
+        const lastTxnYoY = last(txnYoY);
+        const lastRate = last(rate);
+        const rateYoY = yoy(rate);
+        const lastRateYoY = last(rateYoY);
+        const conLoanYoY = yoy(conLoan);
+        const lastConLoanYoY = last(conLoanYoY);
+
+        setKpi('kpi_txn', lastTxnYoY==null?'--':pct(lastTxnYoY), null);
+        document.getElementById('kpi_txn_delta').textContent = '';
+        setKpi('kpi_rate', lastRate, (lastRateYoY==null?null:lastRateYoY));
+        setKpi('kpi_conloan', lastConLoanYoY==null?'--':pct(lastConLoanYoY), null);
+        document.getElementById('kpi_conloan_delta').textContent = '';
+
+        // Charts
+        const rangeMonths = rangeSel.value;
+        const city = citySel.value || 'ALL';
+
+        drawLine('chart_txn', [
+          {name:'全國', data: filterRange(txnAll, rangeMonths)},
+          ...(txnCities[city] && city!=='ALL' ? [{name:city, data: filterRange(txnCities[city], rangeMonths)}] : [])
+        ], '棟');
+
+        drawMultiAxis('chart_rate_loan', 
+          {name:'房貸利率(%)', data: filterRange(rate, rangeMonths)},
+          {name:'建築貸款餘額YoY(%)', data: filterRange(conLoanYoY, rangeMonths)}
+        );
+
+        drawLine('chart_permits', [
+          {name:'建造執照', data: filterRange(permits, rangeMonths)},
+          {name:'使用執照', data: filterRange(usage, rangeMonths)},
+        ], '件');
+
+        drawLine('chart_cost_rent', [
+          {name:'營造工程物價指數', data: filterRange(cost, rangeMonths)},
+          {name:'房租CPI年增率(%)', data: filterRange(rent, rangeMonths)},
+        ], '');
+
+        drawLine('chart_sector', [
+          {name:'建材營造類股（月均）', data: filterRange(ma(sector, 20), rangeMonths)},
+        ], '指數');
+
+        drawLine('chart_hpi', [
+          {name:'內政部HPI-全國', data: filterRange((hpi_moi.find(s=>s.area==='全國')||{}).series||[], rangeMonths)},
+          {name:'信義HPI-全國', data: filterRange((hpi_sinyi.find(s=>s.area==='全國')||{}).series||[], rangeMonths)},
+        ], '指數');
+
+        // insights
+        const lastPermitsYoY = last(yoy(permits));
+        const lastUsageYoY = last(yoy(usage));
+        const lastCostYoY = last(yoy(cost));
+        const lines = [];
+        if(lastTxnYoY!=null) lines.push(`交易量年增：<b>${pct(lastTxnYoY)}</b>`);
+        if(lastRate!=null) lines.push(`新承作房貸利率：<b>${(Math.round(lastRate*100)/100).toFixed(2)}%</b>`);
+        if(lastConLoanYoY!=null) lines.push(`建築貸款餘額YoY：<b>${pct(lastConLoanYoY)}</b>`);
+        if(lastPermitsYoY!=null) lines.push(`建造執照YoY：<b>${pct(lastPermitsYoY)}</b>`);
+        if(lastUsageYoY!=null) lines.push(`使用執照YoY：<b>${pct(lastUsageYoY)}</b>`);
+        if(lastCostYoY!=null) lines.push(`營造物價YoY：<b>${pct(lastCostYoY)}</b>`);
+        document.getElementById('insights').innerHTML = lines.join('<br>') || '—';
+      }
+
+      function drawLine(id, series, unit){
+        const el = document.getElementById(id);
+        const chart = echarts.init(el);
+        const opt = {
+          tooltip: { trigger:'axis' },
+          legend: { top: 0, textStyle: { color:'#c9d2ea' } },
+          grid: { left: 40, top: 30, right: 20, bottom: 40 },
+          xAxis: { type:'category', data: (series[0]?.data||[]).map(d=>d.date), axisLabel:{ color:'#9fb0d3' } },
+          yAxis: { type:'value', axisLabel:{ color:'#9fb0d3' } },
+          series: series.map(s => ({ name:s.name, type:'line', showSymbol:false, smooth:true, data:s.data.map(d=>d.value) }))
+        };
+        chart.setOption(opt);
+        window.addEventListener('resize', ()=>chart.resize());
+      }
+
+      function drawMultiAxis(id, left, right){
+        const el = document.getElementById(id);
+        const chart = echarts.init(el);
+        const dates = left.data.map(d=>d.date);
+        const opt = {
+          tooltip: { trigger:'axis' },
+          legend: { top: 0, textStyle: { color:'#c9d2ea' } },
+          grid: { left: 40, top: 30, right: 50, bottom: 40 },
+          xAxis: { type:'category', data: dates, axisLabel:{ color:'#9fb0d3' } },
+          yAxis: [
+            { type:'value', name:left.name, axisLabel:{ color:'#9fb0d3' } },
+            { type:'value', name:right.name, axisLabel:{ color:'#9fb0d3' }, position:'right' }
+          ],
+          series: [
+            { name:left.name, type:'line', yAxisIndex:0, showSymbol:false, smooth:true, data:left.data.map(d=>d.value) },
+            { name:right.name, type:'line', yAxisIndex:1, showSymbol:false, smooth:true, data:right.data.map(d=>d.value) }
+          ]
+        };
+        chart.setOption(opt);
+        window.addEventListener('resize', ()=>chart.resize());
+      }
+
+      document.getElementById('reset').addEventListener('click', ()=>{ rangeSel.value='10y'; citySel.value='ALL'; load(); });
+      rangeSel.addEventListener('change', ()=>load());
+      citySel.addEventListener('change', ()=>load());
+      load();
+    </script>
+  </body>
+</html>
