@@ -1,9 +1,12 @@
 
-name: Update dashboard data (weekly)
+name: Update dashboard data (daily & on push)
 
 on:
+  push:
+    branches:
+      - master
   schedule:
-    - cron: "0 1 * * 1"   # 每週一 09:00 台北時間 (UTC+8)
+    - cron: "0 0 * * *" # Daily at midnight UTC
   workflow_dispatch:
 
 permissions:
