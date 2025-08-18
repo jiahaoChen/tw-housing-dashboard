@@ -1,5 +1,5 @@
 {
-  "updated_at": "2025-08-18",
+  "updated_at": "2025-08-18 03:52 UTC",
   "transactions_total": [],
   "transactions_cities": {
     "ALL": []
@@ -15,13 +15,13 @@
   "house_price_index_moi": [
     {
       "area": "全國",
-      "series": []
+      "series": [
+        {
+          "date": "2024-12",
+          "value": 150.98
+        }
+      ]
     }
   ],
-  "house_price_index_sinyi": [
-    {
-      "area": "全國",
-      "series": []
-    }
-  ]
+  "house_price_index_sinyi": []
 }
