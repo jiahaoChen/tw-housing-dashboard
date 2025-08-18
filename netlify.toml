@@ -1,0 +1,9 @@
+[build]
+  publish = "docs"
+  command = ""
+
+# SPA fallback (harmless even if not needed)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
