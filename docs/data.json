@@ -1,9 +1,7 @@
 {
-  "updated_at": "2026-02-09 00:17 UTC",
+  "updated_at": "2026-02-10 00:21 UTC",
   "transactions_total": [],
-  "transactions_cities": {
-    "ALL": []
-  },
+  "transactions_cities": {},
   "five_bank_new_mortgage_rate": [],
   "jcic_housing_loan_counts": [],
   "construction_loans_balance": [],
@@ -12,16 +10,6 @@
   "construction_sector_index": [],
   "building_permits": [],
   "usage_licenses": [],
-  "house_price_index_moi": [
-    {
-      "area": "全國",
-      "series": [
-        {
-          "date": "2024-12",
-          "value": 150.98
-        }
-      ]
-    }
-  ],
+  "house_price_index_moi": [],
   "house_price_index_sinyi": []
 }
